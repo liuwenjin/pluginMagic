@@ -1,5 +1,12 @@
 # pluginMagic
-Used to encapsulate Javascript plug-ins. 
 
-The encapsulated plug-ins can be embedded in front-end pages under different technology stacks.
+## 简介
+用于封装Javascript插件，所封装的插件可嵌入到不同技术栈下的前端页面。
+可以让Web前端开发者，真正做到“一次编写，随处嵌入运行”。意味着开发者可以编写一次代码，然后无需或只需很少的修改，就能在不同技术栈的前端页面上运行。
 
+## 特点
+- 只需要。
+- 突出显示项目的独特优势。
+
+## 安装
+说明如何安装你的插件，包括必要的依赖项和步骤。
