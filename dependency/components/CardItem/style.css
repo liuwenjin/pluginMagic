@@ -1,0 +1,451 @@
+body {
+	overflow-y: hidden !important;
+}
+
+.btn-prev .el-icon svg,
+.btn-next .el-icon svg {
+	height: 0.7em;
+	width: 0.7em;
+}
+
+.CardItem .rightEmptyArea {
+	right: 0px !important;
+	top: 0px !important;
+	color: #5a9cf8;
+	position: absolute;
+}
+
+
+
+.el-input__inner {
+	background-color: transparent !important;
+}
+
+
+.CardItem {
+	position: relative;
+	width: 600px;
+	height: 400px;
+	-webkit-overflow-scrolling: touch;
+	box-sizing: border-box;
+	margin: auto;
+}
+
+.CardItem * {
+	box-sizing: border-box;
+}
+
+.CardItem_contentArea {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	z-index: 997;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	-webkit-overflow-scrolling: touch;
+}
+
+.CardItem_content {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	border-radius: 5px;
+	-webkit-overflow-scrolling: touch;
+}
+
+.CardItem_mask {
+	position: absolute;
+	display: none;
+	width: 100%;
+	height: 100%;
+	z-index: 1999;
+	left: 0px;
+	top: 0px;
+	border-radius: 5px;
+	background-color: rgba(250, 250, 250, 0.95);
+	border: solid 0px #f8f8f8;
+	-webkit-overflow-scrolling: touch;
+}
+
+.CardItem_stateTips {
+	color: #888;
+}
+
+.CardItem_titleArea {
+	position: absolute;
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	top: 0px;
+	height: 23px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #999;
+	z-index: 999;
+	border-bottom: solid 1px #ddd;
+	background-color: rgba(255, 255, 255, 0.8);
+}
+
+:fullscreen {
+	/* 这里可以设置你自定义的样式，例如隐藏提示信息 */
+	display: none;
+}
+
+
+.CardItem_footArea {
+	position: absolute;
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	bottom: 0px;
+	height: 30px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	display: block;
+}
+
+.CardItem_title {
+	font-size: 14px;
+	font-weight: 900;
+	margin: 0px;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.CardItem_title>.breadcrumb {
+	background: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+.__CardItem_componentArea {
+	position: absolute;
+	width: 100%;
+	top: 0px;
+	bottom: 0px;
+	text-align: left;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	-webkit-overflow-scrolling: touch;
+}
+
+.CardItem_componentArea {
+	position: relative;
+	width: 100%;
+	height: 100%;
+
+	align-items: center;
+	-webkit-overflow-scrolling: touch;
+}
+
+.CardItem_componentArea>._task_container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	margin: auto;
+}
+
+.CardItem_componentArea[mouldName=FormItem] {
+	display: block;
+	text-align: center;
+}
+
+.CardItem_title>.navbar-nav>li>a {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.CardItem_eventArea .CardItem_adjust {
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	display: none;
+}
+
+.CardItem_eventArea .CardItem_adjust:before {
+	content: "";
+	position: absolute;
+	left: 18px;
+	top: 18px;
+	width: 15px;
+	height: 15px;
+	background-color: #77B941;
+}
+
+.CardItem_eventArea .CardItem_top:before {
+	left: 18px;
+	top: 16px;
+}
+
+.CardItem_eventArea .CardItem_left:before {
+	left: 16px;
+	top: 18px;
+}
+
+.CardItem_eventArea .CardItem_adjust:before :hover {
+	cursor: ns-resize;
+}
+
+.CardItem_adjust[adjustType=ns]:hover {
+	cursor: ns-resize;
+}
+
+.CardItem_adjust[adjustType=ew]:hover {
+	cursor: ew-resize;
+}
+
+.CardItem_adjust:nth-child(1) {
+	left: calc(50% - 25px);
+	top: -25px;
+}
+
+.CardItem_adjust:nth-child(2) {
+	right: -25px;
+	top: calc(50% - 25px);
+}
+
+.CardItem_adjust:nth-child(3) {
+	bottom: -25px;
+	left: calc(50% - 25px);
+}
+
+.CardItem_adjust:nth-child(4) {
+	left: -25px;
+	top: calc(50% - 25px);
+}
+
+.CardItem_btnsArea {
+	float: right;
+	position: absolute;
+	text-align: center;
+	color: #fff;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+	font-size: 8px;
+	right: 0px;
+	margin: 0px;
+	padding: 0px;
+	display: none;
+}
+
+.CardItem_eventArea {
+	display: none;
+}
+
+.CardItem_btn {
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	border-radius: 100%;
+}
+
+input.CardItem_mark {
+	width: 20px;
+	height: 20px;
+	margin-top: 8px;
+	margin-left: 10px;
+}
+
+.CardItem_btnsArea>label:nth-child(2) .CardItem_close {
+	font-size: 14px;
+	width: 20px;
+	height: 20px;
+	border-radius: 100%;
+	top: 100% !important;
+	float: right;
+	transform: translateY(-140%) !important;
+	text-align: center;
+	color: #000;
+}
+
+.CardItem_btn:hover {
+	color: #333;
+	cursor: pointer;
+}
+
+
+.CardItem_modifyArea:hover label:nth-child(2) {
+	display: inline-block;
+}
+
+.CardItem_btnsArea>label {
+	position: absolute;
+}
+
+.CardItem_btnsArea>label:nth-child(1) {
+	width: 100%;
+	height: 35px;
+	left: 0px;
+	bottom: 0px;
+	text-align: left;
+	background-color: rgba(232, 232, 232, 0.8);
+	margin: 0px;
+
+}
+
+.selectAppList[status='true'] {
+	padding-top: 0px;
+}
+
+.selectAppList[status='false'] {
+	padding-top: 40px;
+}
+
+.CardItem_btnsArea>label:nth-child(2) {
+	width: 60px;
+	padding-right: 3px;
+	height: 100%;
+	top: 0px;
+	right: 0px;
+	display: none;
+	z-index: 2;
+}
+
+.CardItem_btnsArea>label:nth-child(2) .CardItem_btn {
+	position: absolute;
+	top: 50%;
+	right: 3px;
+	transform: translateY(-50%);
+}
+
+.CardItem_btnsArea>label:nth-child(2) .CardItem_edit {
+	margin-top: -30px;
+	font-size: 20px;
+	padding-top: 10px;
+	background-color: #999;
+}
+
+.CardItem_btnsArea>label:nth-child(2) .CardItem_preview {
+	margin-top: 30px;
+	font-size: 20px;
+	padding-top: 10px;
+	background-color: #999;
+}
+
+.CardItem_sketch {
+	width: 100%;
+	height: 100%;
+	text-align: center;
+}
+
+.CardItem_sketch>img {
+	max-width: 100%;
+	height: 100%;
+}
+
+.CardItem .rightEmptyArea {
+	cursor: pointer;
+	height: 100%;
+	right: 10px;
+	text-align: right;
+	top: 0px;
+	display: flex;
+	position: absolute;
+	min-width: 30px;
+	width: auto;
+	align-items: center;
+	justify-content: flex-end;
+	border-top-right-radius: 5px;
+	position: absolute;
+	z-index: 3;
+}
+
+.CardItem .rightEmptyArea .menuItem:hover,
+.CardItem .leftEmptyArea:hover {
+	color: #000;
+}
+
+.CardItem .rightEmptyArea .menuItem,
+.CardItem .leftEmptyArea .menuItem {
+	font-size: 10px;
+}
+
+
+.CardItem .leftEmptyArea {
+	cursor: pointer;
+	display: flex;
+	height: 100%;
+	width: 30px;
+	margin-left: 0px;
+	font-weight: 900;
+	align-items: center;
+	color: #000;
+	position: absolute;
+	z-index: 3;
+}
+
+.CardItem .titleInfoArea {
+	position: absolute;
+	padding: 0px 120px;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #666;
+}
+
+.CardItem_footArea {
+	font-size: 12px;
+}
+
+.CardItem_footArea .page-item .page-link {
+	color: #333;
+}
+
+.CardItem_footArea .page-item.active .page-link {
+	background: none;
+	color: #007bff;
+}
+
+.CardItem_footArea .page-item:hover .page-link {
+	background: none;
+	color: #007bff;
+}
+
+.CardItem_footArea .page-item.disabled .page-link {
+	pointer-events: none;
+	cursor: not-allowed;
+}
+
+.CardItem_footArea .page-item.disabled .page-link,
+.CardItem_footArea .page-item.disabled:hover .page-link {
+	background: none;
+	color: #ddd;
+}
+
+.CardItem_footArea ul,
+.CardItem_footArea ul li {
+	display: inline-block;
+}
+
+.CardItem_footArea ul li {
+	cursor: pointer;
+}
+
+.page-item .page-link {
+	border: none;
+}
+
+.CardItem_footArea ul.pagination {
+	padding-right: 10px;
+}
+
+.CardItem_mask .forbidTips {
+	position: absolute;
+	left: 0px;
+	display: inline-block;
+	padding: 5px 10px;
+	max-width: 100%;
+	border: solid 1px #ddd;
+	background: #fff;
+	border-bottom-right-radius: 5px;
+	box-shadow: 2px 2px 2px #000;
+}
