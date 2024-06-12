@@ -1,6 +1,5 @@
 transweb_example([{
   cardName: "信息卡片插件",
-  type: "pageCard",
   url: "https://transweb.cn/plugins/elementVueItem/pageCard.vue",
   className: "ElementVueItem",
   dsl: {
@@ -123,19 +122,10 @@ transweb_example([{
         "prop": 'key3',
         "type": 'html'
       }]
-    },
-    "style": {
-      "width": 1600,
-      "height": 900,
-      "border": 'solid 1px #ddd',
-      "borderRadius": '10px',
-      "padding": '20px 40px',
-      "boxShadow": '2px 2px 2px #333'
     }
   }
 }, {
   cardName: "可视化插件",
-  type: "EchartsItem",
   className: "EchartsItem",
   dsl: {
     "type": 'column',
@@ -183,18 +173,9 @@ transweb_example([{
       "name": '十二月',
       "value": [40, 60]
     }],
-    "style": {
-      width: 1600,
-      height: 900,
-      border: "solid 1px #ddd",
-      borderRadius: "10px",
-      padding: "20px 40px",
-      boxShadow: "2px 2px 2px #333"
-    }
   }
 }, {
   cardName: "Phaser 游戏",
-  type: "PhaserItem",
   className: "PhaserItem",
   dsl: {
     "config": {
