@@ -6,6 +6,8 @@
 
 这个项目可以让 Web 前端开发者，真正做到“一次编写，随处嵌入运行”。意味着开发者可以编写一次代码，然后无需或只需很少的修改，就能在不同技术栈的前端页面上运行。
 
+之所以能做到这一点，是因为无论封装插件还是插件被使用，都相对独立：不用融入所在项目的代码中，不用编译，除了插件的底座 js 脚本资源，其他插件资源都不用提前声明或载入。
+
 ## 特点
 
 - 部署方便，解压后复制粘贴到 Web 服务的静态目录即可。
@@ -80,39 +82,6 @@ transweb_example([{
     }, {
       "name": '三月',
       "value": [210, 180]
-    }, {
-      "name": '四月',
-      "value": [140, 80]
-    }, {
-      "name": '五月',
-      "value": [200, 130]
-    }, {
-      "name": '五月',
-      "value": [140, 180]
-    }, {
-      "name": '五月',
-      "value": [210, 80]
-    }, {
-      "name": '六月',
-      "value": [140, 100]
-    }, {
-      "name": '七月',
-      "value": [200, 80]
-    }, {
-      "name": '八月',
-      "value": [190, 180]
-    }, {
-      "name": '九月',
-      "value": [240, 80]
-    }, {
-      "name": '十月',
-      "value": [40, 280]
-    }, {
-      "name": '十一月',
-      "value": [140, 20]
-    }, {
-      "name": '十二月',
-      "value": [40, 60]
     }]
   }
 }])
@@ -153,7 +122,7 @@ webCpu.renderCard(elem, {
 
 #### dsl 数据结构
 
-CardItem 的 dsl 数据结构会被其他类型插件的 dsl 继承。
+CardItem 的 dsl 数据结构会被其他类型插件的 dsl 继承, 即其他类型的插件也支持。
 
 ```javascript
 {
@@ -189,7 +158,7 @@ CardItem 的 dsl 数据结构会被其他类型插件的 dsl 继承。
 ### EchartsItem 类型
 
 #### 功能描述
-主要是用于对数据的可视化展示。
+封装的这类型插件，主要是用于对数据的可视化展示。
 
 #### dsl数据结构
 
@@ -219,7 +188,12 @@ CardItem 的 dsl 数据结构会被其他类型插件的 dsl 继承。
 ### ElementVueItem类型
 
 #### 功能描述
-Element Plus + Vue 3技术栈的Vue组件文件转插件功能
+
+封装的这类型插件，主要用于像 Vue 单文件组件一样显示信息。
+
+使用 Vue 3技术栈下的 Element plus 组件库展示信息，也像单文件组件一样可以添加界面交互逻辑脚本代码。
+
+
 
 #### dsl数据结构
 该类型插件的 dsl 数据结构不固定，取决于相应的 Vue 组件内容。
@@ -363,28 +337,265 @@ Element Plus + Vue 3技术栈的Vue组件文件转插件功能
 
 
 #### 资源依赖信息
+- Element Plus v2.3.3
+- Vue v3.2.31
 
 ### PhaserItem
 
 #### 功能描述
-主要是用于对数据的可视化展示。
+封装实现简单的Phaser.js 游戏插件，用于寓教于乐的教学课件。
 
 #### dsl数据结构
 
+```javascript
+{
+    //游戏窗口大小设置
+    "config": {
+      "width": 320,
+      "height": 256
+    },
+    //用于接收外部输入参数
+    "content": {
+      "dsl": [{
+        "imageMap": ['player', 'box', 'target', 'ground'],
+        "charMap": {
+          "#": 'ground',
+          "@": 'player',
+          "$": 'box'
+        },
+        "map": ['## ##', '###@#', '#$ $#', '# $##']
+      }],
+      "image": ['https://transweb-1254183942.cos.ap-beijing.myqcloud.com/images/pushBox/player.png', 'https://transweb-1254183942.cos.ap-beijing.myqcloud.com/images/pushBox/box.png', 'https://transweb-1254183942.cos.ap-beijing.myqcloud.com/images/pushBox/target.png', 'https://transweb-1254183942.cos.ap-beijing.myqcloud.com/images/pushBox/ground.png']
+    },
+    //游戏场景对象
+    "scene": {
+      //游戏场景初始化和过程逻辑
+      "create": function () {
+        // 创建地图数组
+        let dsl = this.task.content.dsl[0] || {};
+        let charMap = dsl.charMap || {};
 
+        let map = dsl.map || {};
+        let tileSize = 64;
+
+        let _self = this;
+
+        let showHint = function (text, duration, callback, style) {
+          let tipsItem = _self.add.text(0, 0, '', style || {
+            font: '24px Arial',
+            fill: '#ffffff',
+            align: 'center',
+            zIndex: 100
+          });
+          tipsItem.setOrigin(0.5, 0.5);
+          tipsItem.visible = false;
+
+          // 设置提示文本内容和位置
+          tipsItem.setText(text);
+          tipsItem.setPosition(_self.game.renderer.width / 2, _self.game.renderer.height / 2);
+          tipsItem.visible = true;
+
+          // 设置定时消失
+          _self.time.addEvent({
+            delay: duration,
+            callback: () => {
+              tipsItem.visible = false;
+              if (typeof callback === "function") {
+                callback();
+              }
+            },
+            loop: false
+          });
+        }
+
+        let player;
+        const targets = [];
+
+        let boxes = [];
+
+        // 遍历地图数组
+        for (let i = 0; i < map.length; i++) {
+          for (let j = 0; j < map[i].length; j++) {
+            let x = j * tileSize;
+            let y = i * tileSize;
+            let role = charMap[map[i][j]] || "target";
+            let item = this.add.image(x, y, role).setOrigin(0);
+            // 计算缩放比例
+            let scaleX = tileSize / item.width;
+            let scaleY = tileSize / item.height;
+            // 设置图像缩放比例
+            item.setScale(scaleX, scaleY);
+
+            if (role === "player") {
+              item.setDepth(1);
+              player = item;
+            } else if (role === "box") {
+              boxes.push(item);
+              item.setDepth(1);
+            } else if (role === "target") {
+              targets.push(item);
+            } else {}
+          }
+        }
+
+        let gameOver = false;
+
+        // 设置玩家输入
+        this.input.keyboard.on('keydown', function (event) {
+          let dx = 0,
+            dy = 0;
+          switch (event.code) {
+            case 'KeyW':
+              dy = -1;
+              break;
+            case 'KeyS':
+              dy = 1;
+              break;
+            case 'KeyA':
+              dx = -1;
+              break;
+            case 'KeyD':
+              dx = 1;
+              break;
+          }
+
+          let newPlayerX = player.x + dx * tileSize;
+          let newPlayerY = player.y + dy * tileSize;
+
+          // 碰撞检测
+          let size = {
+            x: map[0].length * tileSize,
+            y: map.length * tileSize
+          }
+          let collisionItem = isCollision(newPlayerX, newPlayerY);
+          if (!isOutRange(newPlayerX, newPlayerY, size)) {
+            if (!collisionItem) {
+              player.x = newPlayerX;
+              player.y = newPlayerY;
+            } else {
+              let newX = collisionItem.x + dx * tileSize;
+              let newY = collisionItem.y + dy * tileSize;
+              if (!isOutRange(newX, newY, size) && !isCollision(newX, newY, collisionItem)) {
+                player.x = newPlayerX;
+                player.y = newPlayerY;
+                collisionItem.x = newX;
+                collisionItem.y = newY;
+              }
+            }
+          }
+
+          // 检查是否胜利
+          checkResult();
+
+        });
+
+
+
+        function checkResult() {
+          let win = true;
+          for (let i = 0; i < targets.length; i++) {
+            let target = targets[i];
+            let hasBox = false;
+            for (let j = 0; j < boxes.length; j++) {
+              let box = boxes[j];
+              if (box.x === target.x && box.y === target.y) {
+                hasBox = true;
+                break;
+              }
+            }
+            if (!hasBox) {
+              win = false;
+              break;
+            }
+          }
+
+          if (win && !gameOver) {
+            gameOver = true;
+            setTimeout(function () {
+              showHint("You Win", 2000, function () {
+                _self.scene.restart();
+              });
+            }, 500);
+          }
+        }
+
+        //越界检测函数
+        function isOutRange(x, y, size) {
+          let ret = true;
+          if (x > -1 && y > -1 && x < size.x && y < size.y) {
+            ret = false;
+          }
+          return ret;
+        }
+
+        // 碰撞检测函数
+        function isCollision(x, y, item) {
+          let index = boxes.indexOf(item);
+          for (var i = 0; i < boxes.length; i++) {
+            var box = boxes[i];
+            if (box.x === x && box.y === y && item !== box) {
+              return box;
+            }
+          }
+          return false;
+        }
+
+      },
+      // 游戏资源加载逻辑
+      "preload": function () {
+        let dsl = this.task.content.dsl[0] || {};
+        let arr = dsl.imageMap || [];
+        let images = this.task.content.image || [];
+        try {
+          for (let i = 0; i < images.length; i++) {
+            this.load.image(arr[i], images[i]);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    },
+    // 游戏场景容器样式，width和height 一般需要与config的保持一致
+    "style": {
+      "width": 320,
+      "height": 256
+    }
+  }
+```
 #### 资源依赖信息
+- Phaser.js v3.80.1
+
 
 ### TemplateItem类型
 
 #### 功能描述
-主要是用于对数据的可视化展示。
+
+封装的这类型插件，也是用于展示信息，主要是使用 Bootstrap UI 库展示二维的信息，或使用aFrame.js库的组件标签或属性展示 三维的信息。当然这类插件也支持添加界面交互逻辑脚本代码。
+
+相当于提供 html 标签文件转插件功能，即将 html 标签内容封装为通用 javascript 插件。
+这里的标签除了浏览器原生的二维信息外，也包含 aFrame.js库拓展的 三维信息标签，比如<a-scene><a-box></a-box></a-scene>等等这样的标签。
 
 #### dsl数据结构
 
+```javascript
+{
+  // 外部依赖资源
+  dependency: {
+    script: { 
+      environment: "https://transweb.cn/A-Frame/js/aframe-environment-component.js"
+    },
+    css: {
+      bulma: "https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma-rtl.min.css"
+    }
+  },
+}
+```
+当然我们也可以在上面的结构上添加 CardItem 类型插件的那些 dsl 数据参数。
+
 
 #### 资源依赖信息
+aframe v1.6
 
-## 附录-可视化图表的简化数据结构列表
 
 
 
