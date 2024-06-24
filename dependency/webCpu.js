@@ -102,7 +102,7 @@ WebAdapter.request = function (url, type, query, callback, options, params) {
   options = options || {};
   options.params = params || options.params;
   if (options.params) {
-    url = url.bindData(options.params);
+    url = WebTool.bindData(url, options.params);
   }
 
   if (type !== "_jsonp") {
@@ -111,7 +111,7 @@ WebAdapter.request = function (url, type, query, callback, options, params) {
         dataType: options
       }
     }
-    var request = new WebRequest(url, type, options.dataType, options.contentType, options.proxy);
+    var request = new WebRequest(url, type, options);
     request(query, function (data) {
       if (typeof (callback) === "function") {
         callback(data);
@@ -171,7 +171,7 @@ WebAdapter.loadCardData = function (url, key, myCallback) {
   document.head.appendChild(s);
 }
 
-var WebRequest = function (url, type, options, contentType, proxy, query) {
+var WebRequest = function (url, type, options) {
   var type = type || "jsonp";
   options = options || {};
   if (typeof options === "string") {
@@ -179,9 +179,12 @@ var WebRequest = function (url, type, options, contentType, proxy, query) {
       dataType: options
     }
   }
-  options.contentType = options.contentType || contentType;
-  options.proxy = options.proxy || proxy;
-  options.query = options.query || query;
+
+  if(type !== "jsonp" && url.search(location.origin) === -1) {
+    options.proxy = true;
+  }
+  // options.proxy = options.proxy  true : options.proxy;
+
   if (type === "jsonp" || type === "noEcho" || type === "_jsonp") {
     return (new CustomInterface(url, type, options));
   } else {
@@ -192,6 +195,7 @@ var WebRequest = function (url, type, options, contentType, proxy, query) {
 var CustomInterface = function (url, type, options) {
   this.options = {};
   this.type = type || "jsonp";
+  this.header = options.header;
   this.query = options.query || {};
   for (var k in options) {
     if (options[k] === 1) {
@@ -208,7 +212,7 @@ CustomInterface.prototype.extend = function () {
     if (_this.check(_this.options, data)) {
       var url = _this.url;
       if (params) {
-        url = url.bindData(params);
+        url = WebTool.bindData(url, params);
       }
       if (typeof _this.query === "string") {
         url = WebTool.attachParams(url, {
@@ -277,6 +281,7 @@ var AjaxInterface = function (url, type, options) {
   this.contentType = options.contentType;
   this.type = type;
   this.dataType = options.dataType;
+  this.header = options.header;
   this.proxy = options.proxy;
   this.authorization = options.authorization;
   if (this.proxy === true) {
@@ -291,11 +296,11 @@ var AjaxInterface = function (url, type, options) {
   return this.init(type, options.dataType);
 }
 
-AjaxInterface.prototype.sendData = function (query, callback, params, card) {
+AjaxInterface.prototype.sendData = function (query, callback, params) {
   var data = query;
   var url = this.url;
-  if (params && typeof url.bindData === "function") {
-    url = url.bindData(params);
+  if (params && typeof WebTool.bindData === "function") {
+    url = WebTool.bindData(url, params);
   }
   var type = this.type;
   var dType = this.dataType || "json";
@@ -377,6 +382,16 @@ AjaxInterface.prototype.sendData = function (query, callback, params, card) {
     this.httpObj.setRequestHeader("Authorization", _self.authorization);
   }
 
+  _self.header = _self.header || {};
+  if(location.pathname.search("/proxy.html") === -1) {
+    _self.header["transweb-token"] = localStorage.getItem("transweb-token");
+  }
+  if(_self.header) {
+    for(var k in _self.header){
+      this.httpObj.setRequestHeader(k, _self.header[k]);
+    }
+  }
+
   if (AjaxInterface.interceptor && typeof AjaxInterface.interceptor.request === "function") {
     AjaxInterface.interceptor.request(this.httpObj);
   }
@@ -393,19 +408,23 @@ AjaxInterface.prototype.init = function () {
         var proxy = _self.proxy;
         var key = MurmurHash.rule(proxy, 31);
         webCpu.crossItem = webCpu.crossItem || {};
+        _self.header = _self.header || {};
+        if(location.pathname.search("/proxy.html") === -1) {
+          _self.header["transweb-token"] = localStorage.getItem("transweb-token");
+        }
         if (!webCpu.crossItem[key]) {
           webCpu.crossItem[key] = new CrossDomainService(proxy, function () {
-            webCpu.crossItem[key].request(_self.url, query, _self.type, callback, _self.dataType, _self.contentType);
+            webCpu.crossItem[key].request(_self.url, query, _self.type, callback, _self.dataType, _self.contentType, _self.header);
           })
         } else if (webCpu.crossItem[key] && webCpu.crossItem[key].inited) {
-          webCpu.crossItem[key].request(_self.url, query, _self.type, callback, _self.dataType, _self.contentType);
+          webCpu.crossItem[key].request(_self.url, query, _self.type, callback, _self.dataType, _self.contentType, _self.header);
         } else {
           setTimeout(function () {
             if (webCpu.crossItem[key] && webCpu.crossItem[key].inited) {
-              webCpu.crossItem[key].request(_self.url, query, _self.type, callback, _self.dataType, _self.contentType)
+              webCpu.crossItem[key].request(_self.url, query, _self.type, callback, _self.dataType, _self.contentType, _self.header)
             } else {
               webCpu.crossItem[key] = new CrossDomainService(proxy, function () {
-                webCpu.crossItem[key].request(_self.url, query, _self.type, callback, _self.dataType, _self.contentType);
+                webCpu.crossItem[key].request(_self.url, query, _self.type, callback, _self.dataType, _self.contentType, _self.header);
               })
             }
           }, 200);
@@ -480,14 +499,14 @@ ViewControl.prototype.initConfig = function () {
     //Set script status
     this.sStatus = 0;
     if (typeof (this.config.script) === "string") {
-      if (this.config.name !== "main") {
+      if (this.config.name !== "main" && this.config.name.search("m_") !== 0) {
         this.config.script = this.getPath(this.config.script);
       }
       this.sStatus = 1;
     } else if (typeof (this.config.script) === "object") {
       for (var i in this.config.script) {
         this.sStatus++;
-        if (this.config.name !== "main") {
+        if (this.config.name !== "main" && this.config.name.search("m_") !== 0) {
           this.config.script[i] = this.getPath(this.config.script[i]);
         }
       }
@@ -569,6 +588,7 @@ ViewControl.prototype.updateFromRemote = function (task) {
   WebAdapter.request(url, rType, task.query, callback, {
     contentType: task.contentType,
     dataType: task.dataType,
+    header: task.header,
     proxy: task.proxy,
     params: task.params
   });
@@ -843,7 +863,7 @@ ViewControl.prototype.initDom = function (obj, container, task) {
       t.setAttribute("style", style);
     }
 
-    t.innerHTML = this.html.innerHTML.bindData(obj, task.filter);
+    t.innerHTML = WebTool.bindData(this.html.innerHTML, obj, task.filter);
     // $(t).html(this.html.innerHTML);
     // console.log("initDom", t, this.html.innerHTML);
   }
@@ -1436,7 +1456,7 @@ var WebCpu = function (container, url, config) {
   }
   this.adapter = {};
   this.appMap = {};
-  this.componentPath = "dependency/components";
+  this.componentPath = "https://transweb.cn/transweb/components";
 }
 
 WebCpu.prototype.runWebApp = function (container, app, config, style) {
@@ -1642,6 +1662,7 @@ WebCpu.prototype.attachAttribute = function (obj, subObj) {
       subObj[k] = obj[k];
     }
   }
+  return subObj;
 }
 
 WebCpu.prototype.updateView = function (elem, option, data, flag) {
@@ -1937,7 +1958,7 @@ WebCpu.prototype.request = function (interface, query, callback, param) {
   WebAdapter.request(url, type, query, callback, options, param);
 }
 
-WebCpu.prototype.renderCard = function (elem, option, cardName, callback) {
+WebCpu.prototype.renderCard = function (elem, option, cardName, dsl, callback) {
   let current = 0;
   let _self = this;
   WebAdapter.loadCardData(option.url, option.key, function (cData) {
@@ -1949,7 +1970,11 @@ WebCpu.prototype.renderCard = function (elem, option, cardName, callback) {
         current = 0;
       }
     } else {}
-    _self.updateView(elem, cData[current], callback);
+    let card = WebTool.copyObject(cData[current]);
+    card.dsl = card.dsl || {};
+    dsl = dsl || {};
+    _self.attachAttribute(dsl, card.dsl);
+    _self.updateView(elem, card, callback);
   });
 }
 
@@ -2411,7 +2436,7 @@ var CrossDomainService = function (interfaceData, callback) {
   });
 }
 
-CrossDomainService.prototype.request = function (url, query, requestType, callback, type, contentType) {
+CrossDomainService.prototype.request = function (url, query, requestType, callback, type, contentType, header) {
   var key = MurmurHash.rule(url + JSON.stringify(query), 31);
   var messageId = "_" + (new Date()).getTime() + key;
   var requestData = {
@@ -2420,7 +2445,8 @@ CrossDomainService.prototype.request = function (url, query, requestType, callba
     url: url,
     dataType: type,
     contentType: contentType,
-    messageId: messageId
+    messageId: messageId,
+    header: header
   }
   requestData = JSON.parse(JSON.stringify(requestData));
   this.iframe.contentWindow.postMessage(requestData, "*");
@@ -3225,28 +3251,13 @@ WebTool.setShortcutKey = function (elem, key, callback) {
   }
 }
 
-
-
-
-/****************************************************************************/
-String.prototype.getKeys = function () {
-  let re = /{{([^}}]+)?}}/g;
-  let arr = this.match(re) || [];
-  arr = arr.map(item => {
-    item = item.replace(/^\{\{/, "");
-    item = item.replace(/\}\}$/, "");
-    return item;
-  });
-  return arr;
-}
-//模板HTML字符串与JSON对象绑定
-String.prototype.bindData = function (obj, filter) {
-  var ret = this;
+WebTool.bindData = function(str, obj, filter) {
+  var ret = str;
   if (obj && typeof (obj) === "object") {
     var re = /{{([^}}]+)?}}/g;
-    this.filter = filter;
-    var _self = this;
-    var ret = this.replace(re, function (m, t) {
+    str.filter = filter;
+    var _self = str;
+    var ret = _self.replace(re, function (m, t) {
       var temp = obj;
       var ret = (function () {
         var o = temp;
@@ -3263,6 +3274,12 @@ String.prototype.bindData = function (obj, filter) {
       return ret;
     });
   }
+  return ret;
+}
+
+//模板HTML字符串与JSON对象绑定
+String.prototype.bindData = function (obj, filter) {
+  let ret = WebTool.bindData(this, obj, filter);
   return ret;
 }
 
