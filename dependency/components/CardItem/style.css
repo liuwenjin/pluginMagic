@@ -82,10 +82,10 @@ body {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	color: #999;
+	color: #000;
 	z-index: 999;
-	border-bottom: solid 1px #ddd;
-	background-color: rgba(255, 255, 255, 0.8);
+	border-bottom: solid 1px #666;
+	background-color: rgba(195, 195, 195, 0.8);
 }
 
 :fullscreen {
@@ -329,6 +329,17 @@ input.CardItem_mark {
 	background-color: #999;
 }
 
+.CardItem_title .menuItem {
+	--el-button-bg-color: var(--el-color-primary);
+	--el-button-text-color: var(--el-color-white);
+	color: var(--el-button-text-color) !important;
+	background-color: var(--el-button-bg-color) !important;
+}
+
+.CardItem_title .menuItem:last-child {
+	border-top-right-radius: 2px;
+}
+
 .CardItem_sketch {
 	width: 100%;
 	height: 100%;
@@ -350,11 +361,15 @@ input.CardItem_mark {
 	position: absolute;
 	min-width: 30px;
 	width: auto;
+	color: #000;
 	align-items: center;
 	justify-content: flex-end;
 	border-top-right-radius: 5px;
 	position: absolute;
 	z-index: 3;
+	float: right;
+	justify-content: center;
+	border-left: solid 1px #333;
 }
 
 .CardItem .rightEmptyArea .menuItem:hover,
@@ -379,6 +394,12 @@ input.CardItem_mark {
 	color: #000;
 	position: absolute;
 	z-index: 3;
+	float: left;
+	justify-content: center;
+	border-right: solid 1px #333;
+}
+.CardItem .leftEmptyArea:hover {
+	color: #eee;
 }
 
 .CardItem .titleInfoArea {
@@ -389,7 +410,6 @@ input.CardItem_mark {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: #666;
 }
 
 .CardItem_footArea {

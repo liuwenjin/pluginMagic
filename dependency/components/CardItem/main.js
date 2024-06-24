@@ -764,18 +764,8 @@
 
         var leftSelector = titleSelector.find(".leftEmptyArea");
         var rightSelector = titleSelector.find(".rightEmptyArea");
-        rightSelector.css({
-          "float": "right",
-          "justify-content": "center",
-          "border-left": "solid 1px #f8f8f8",
-          "border-bottom": "solid 1px #f8f8f8",
-        });
-        leftSelector.css({
-          float: "left",
-          "justify-content": "center",
-          "border-right": "solid 1px #f8f8f8",
-          "border-bottom": "solid 1px #f8f8f8",
-        });
+       
+        
         var closeSelector = leftSelector;
         var menuSelector = rightSelector;
         if (data.dialogData.closeType === "left") {
@@ -1162,14 +1152,81 @@
     webCpu.render(data.className || "TemplateItem", data.task, data.componentPath || this.config.path);
   }
 
+  webCpu.CardItem.getLabelWidth = function (str, fontSize, fontFamily) {
+    let canvas = document.createElement("canvas");
+    canvas.width = 0;
+    canvas.height = 0;
+    var ctx = canvas.getContext('2d');
+    // 设置字体样式
+    ctx.font = `${fontSize} ${fontFamily}`;
+    // 测量字符串的宽度
+    var textWidth = ctx.measureText(str).width;
+    return textWidth;
+  }
+
+  webCpu.CardItem.addAnimation = function (elem, animation, duration) {
+    if (!elem) {
+      return false;
+    }
+    this.removeAnimationClass(elem);
+    $(elem).addClass("animate__animated");
+    let tClass = "animate__" + animation;
+    $(elem).addClass(tClass);
+    $(elem).addClass("animate__infinite");
+
+    duration = duration || 3;
+    if (typeof duration === "number") {
+      let _self = this;
+      setTimeout(function () {
+        _self.removeAnimationClass(elem);
+      }, duration * 1000);
+    }
+  }
+
+  webCpu.CardItem.attachLabel = function (elem, html, style, animation, duration) {
+    elem = elem || document.querySelector(".CardItem") || document.body;
+
+    var box = document.createElement("div");
+    box.setAttribute("class", "_label_box");
+    box.style.width = "0px";
+    box.style.height = "0px";
+    elem.prepend(box);
+
+    var content = document.createElement("div");
+    // content.innerHTML = ;
+    let tContent = document.createElement("div");
+    tContent.innerHTML = html;
+    content.appendChild(tContent);
+    // tContent.style.backgroundColor = "rgba(245, 245, 245, 0.8)";
+    style = style || {};
+    webCpu.attachAttribute(style, tContent.style);
+    tContent.setAttribute("class", `animate__animated animate__${animation} animate__infinite`);
+    box.appendChild(content);
+
+    box.style.position = "absolute";
+    box.style.zIndex = style.zIndex || 9999;
+    content.style.position = "relative";
+    box.style.display = "inline-block";
+    content.style.display = "inline-block";
+  
+    let x = Math.max(elem.getBoundingClientRect().left - content.getBoundingClientRect().left, 0)
+    box.style.left = x + "px";
+    let y = Math.max(elem.getBoundingClientRect().top - content.getBoundingClientRect().top, 0);
+    box.style.top = y + "px";
+
+    duration = duration || 3;
+    setTimeout(function () {
+      elem.removeChild(box);
+    }, duration * 1000);
+    return content;
+  }
+
   webCpu.CardItem.triggerTimeEvent = function (item, elem) {
     let task = elem.task || elem;
     if (task.container) {
       elem = task.container;
     }
-    // if(item.offset === undefined) {
-    //   return false;
-    // }
+
     elem = elem || document.body;
     if (typeof item.callback === "function") {
       try {
@@ -1220,9 +1277,6 @@
     _parent.timeEvents = arr;
     this.eventCallback = {};
     for (let i = 0; i < arr.length; i++) {
-      // if(arr[i].offset === undefined) {
-      //   return false;
-      // }
       console.log(`___timeEvent_${arr[i].offset}`, arr[i]);
       arr[i].start = new Date().getTime();
       let t = arr[i].offset;
@@ -1242,7 +1296,7 @@
           d.timer = setTimeout(function () {
             let item = d.animation || d.event;
             let elemObj = _self.getAnimateElement(item, elem);
-            let kArr = webCpu.CardItem.keyArray;
+            let kArr = webCpu.CardItem.keyArray.concat(["showtips", "showattention"]);
             if (!elemObj && item && kArr.indexOf(item.type.toLocaleLowerCase()) === -1) {
               console.warn("设置动效失败", d.offset, item.object);
               return false;
@@ -1252,7 +1306,6 @@
         }
         this.eventCallback['setupTimer' + i]();
       } else {
-
         if (!objectElement && item) {
           console.warn("设置动效失败", d.offset, item.object);
         }
@@ -1260,15 +1313,24 @@
       }
     }
   }
-
-
   webCpu.CardItem.keyArray = ["keydown", "keyup", "keypress"];
   webCpu.CardItem.mouseArray = ["mouseleave", "mouseenter", "mousedown", "mouseup"];
+  webCpu.CardItem.tipsStyle = {
+    padding: "10px",
+    borderRadius: "3px",
+    backgroundColor: "rgba(15, 15, 15, 0.8)",
+    border: "solid 1px #666",
+    color: "#f2f2f2",
+    fontSize: "30px",
+    minWidth: "100px",
+    maxWidth: "500px",
+    height: "auto"
+  }
 
   webCpu.CardItem.triggerEvent = function (obj, container) {
     let item = obj.event;
     let elem = null;
-    let keyArray = webCpu.CardItem.keyArray;
+    let keyArray = webCpu.CardItem.keyArray.concat(["showtips", "showattention"]);
     let mouseArray = webCpu.CardItem.keyArray;
     let selector = $(container).find(item.object[0]);
     if ((selector && selector.length !== 0) || keyArray.indexOf(item.type.toLocaleLowerCase()) !== -1) {
@@ -1280,13 +1342,65 @@
       console.warn("事件触发无效", obj.offset, item.object);
       return false;
     }
+
+    elem = elem || container;
+
     try {
       if (item.type) {
-        if (item.type === "hover") {
+        if (item.type === "showTips" || item.type === "showAttention") {
+          let tStyle = webCpu.CardItem.tipsStyle;
+          tStyle = WebTool.copyObject(tStyle);
+          let root = container.getBoundingClientRect();
+          let tBox = root;
+          if (elem) {
+            tBox = elem.getBoundingClientRect();
+          }
+          let gapX = tBox.x - root.x;
+          let gapY = tBox.y - root.y;
+          let radio = 1;
+          let funcCallStr = window.getComputedStyle(container).transform;
+          const regex = /\(([^)]+)\)/;
+          const match = funcCallStr.match(regex);
+          if (match && match[1]) {
+            // 分割参数字符串，并获取第一个参数
+            const args = match[1].split(',');
+            radio = Number(args[0].trim());
+          }
+          gapX = gapX / radio;
+          gapY = gapY / radio;
+
+          tStyle["margin-left"] = (item.xPos || 0) + gapX + "px";
+          tStyle["margin-top"] = (item.yPos || 0) + gapY + "px";
+
+          if (item.type === "showAttention") {
+            item.tips = "";
+            webCpu.attachAttribute({
+              width: "34px",
+              height: "34px",
+              padding: "2px",
+              background: "radial-gradient(circle at 50% 50%, #ff00ff, #000000)",
+              borderRadius: "100%",
+              zIndex: 100000
+            }, tStyle);
+            tStyle["minWidth"] = "";
+            tStyle["maxHeight"] = "";
+          } else {
+            var computedStyle = window.getComputedStyle(document.body);
+            // 获取fontFamily属性
+            var fontFamily = computedStyle.fontFamily;
+            tStyle.width = this.getLabelWidth(item.tips, tStyle.fontSize || "30px", fontFamily) + 30 + "px";
+          }
+          elem = container;
+          let labelItem = this.attachLabel(elem, item.tips || "", tStyle, item.animation, item.duration);
+        } else if (item.type === "inputText") {
+          // elem.value = item.text;
+          this.typingInput(elem, item.text, 2);
+        } else if (item.type === "addAnimation") {
+          this.addAnimation(elem, item.animation, item.duration);
+        } else if (item.type === "hover") {
           var event = new MouseEvent('mouseenter', {
             'bubbles': true,
             'cancelable': true,
-            // 可以设置模拟的鼠标位置
             'clientX': 2,
             'clientY': 2
           });
@@ -1319,6 +1433,22 @@
       }
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  webCpu.CardItem.typingInput = function (elem, text, duration) {
+    duration = duration || 3;
+    clearInterval(webCpu.CardItem.typingInterval);
+    if (text && text.length !== 0) {
+      let gap = Math.ceil(duration || 3) * 1000 / text.length || 10;
+      let i = 1;
+      webCpu.CardItem.typingInterval = setInterval(function () {
+        elem.value = text.substring(0, i);
+        if (i > text.length) {
+          clearInterval(webCpu.CardItem.typingInterval);
+        }
+        i++;
+      }, gap);
     }
   }
 
@@ -1362,7 +1492,7 @@
       item.object = [".el-card", item.object];
     }
     let selector = $(container).find(item.object[0]);
-    if(selector.length === 0) {
+    if (selector.length === 0) {
       selector = $(document.body).find(item.object[0]);
     }
     if (selector && selector.length !== 0) {

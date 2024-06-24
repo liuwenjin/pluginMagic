@@ -44,9 +44,10 @@ webCpu.regComponent("TemplateItem", {
   }
 
   var updateContent = function (task, str) {
-    let dsl = webCpu.getDslData(str);
-    webCpu.attachAttribute(dsl, task);
-    if (!task.dependency) {
+    let dsl = webCpu.getDslData(str) || {};
+    // webCpu.attachAttribute(dsl, task);
+    if (!dsl.dependency) {
+      webCpu.attachAttribute(dsl, task);
       webCpu.renderHTML(task.container, str);
       updateTempData($(task.container).find("[editable='true']"), task.tempData);
       initEvent(task);
@@ -55,33 +56,42 @@ webCpu.regComponent("TemplateItem", {
       }
     } else {
       let tModule = 'm_' + (task.cardName || Math.random());
-      webCpu.initModule({
-        dependency: task.dependency
-      }, tModule, function (c, d, t) {
-        // delete webCpu[tModule];
+      
+      webCpu.initModule(dsl.dependency || {}, tModule, function (c1, d1, t1) {
+        // init tModule success;
+        
       });
-      var myCard = {
-        className: tModule,
-        cardName: tModule,
-        task: {
-          promise: {
-            afterRender: function (cc, dd, tt) {
-              webCpu.renderHTML(task.container, str.bindData(data)) || {};
-              updateTempData($(task.container).find("[editable='true']"), task.tempData);
-              initEvent(task);
-              if (!(task.cardBody.parentNode && task.cardBody.parentNode.getAttribute("type") === "module")) {
-                webCpu.excuteTasks(container, task.appMap || task.appData, task.routeView);
+      let promise = dsl.promise || {};
+        var myCard = {
+          className: tModule,
+          cardName: tModule,
+          task: {
+            promise: {
+              beforeRender: promise.beforeRender,
+              afterRender: function (c, d, t) {
+                
+                console.log(tModule)
+                let dsl = webCpu.renderHTML(c, str.bindData(data)) || {};
+                updateTempData($(c).find("[editable='true']"), task.tempData);
+                initEvent(task);
+                if (!(task.cardBody.parentNode && task.cardBody.parentNode.getAttribute("type") === "module")) {
+                  webCpu.excuteTasks(c, task.appMap || task.appData, task.routeView);
+                }
+                if (typeof promise.afterRender === "function") {
+                  promise.afterRender(c, d, t);
+                }
               }
             }
           }
         }
-      }
-      webCpu.updateView(task.container, myCard);
+
+        webCpu.updateView(task.container, myCard);
+
     }
   }
 
   task.template = task.template || "";
-  
+
   function updateTempData(selector, tempData) {
     tempData = tempData || [];
     selector.html(function (index, html) {

@@ -1,0 +1,97 @@
+.MarkdownArticle {
+	padding-bottom: 30px !important;
+}
+
+.MarkdownArticle h1,
+.MarkdownArticle h2,
+.MarkdownArticle h3 {
+	margin-bottom: 15px;
+	margin-top: 20px;
+}
+
+.MarkdownArticle h3 {
+	margin-top: 20px;
+}
+
+.MarkdownArticle ul,
+.MarkdownArticle ol {
+	margin-left: 0px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding-inline-start: 20px;
+}
+
+.MarkdownArticle ul>li {
+	font-weight: 600;
+}
+
+.MarkdownArticle>pre,
+.MarkdownArticle>pre>code {
+	float: left;
+	width: 100%;
+	height: auto;
+	position: relative;
+}
+
+.MarkdownArticle>pre {
+	margin-bottom: 30px;
+	background-color: #f8f8f8;
+	overflow: hidden;
+}
+
+.MarkdownArticle blockquote {
+  background-color: #f5f2f0;
+  border-left: 8px solid #b4d5ff;
+  display: block;
+  font-size: 100%;
+  line-height: 1.5;
+  margin: 10px 0;
+  padding: 10px
+}
+
+.MarkdownArticle>pre>.micro-front {
+	height: 400px;
+}
+
+.MarkdownArticle .titleItemArea {
+	height: 40px;
+	line-height: 40px;
+	display: inline-block;
+	width: 100%;
+	padding: 0px 10px;
+}
+
+.MarkdownArticle .codeTypeSpan {
+	color: #888;
+}
+
+.MarkdownArticle .copyBtnArea {
+	float: right;
+}
+
+.MarkdownArticle .copyBtn {
+	transform: scale(0.7);
+	margin-top: 4px;
+	margin-right: -3px;
+}
+.MarkdownArticle .copyTips {
+	display: none;
+	font-size: 12px;
+}
+
+
+.MarkdownArticle p {
+	width: 100%;
+	white-space: normal;
+	word-break: break-all;
+}
+
+
+.MarkdownArticle h4 {
+	margin-top: 30px;
+	margin-bottom: 10px;
+}
+
+.MarkdownArticle pre>code .CardItem_componentArea[mouldname=CodeEditor] {
+	margin-top: -40px;
+}
