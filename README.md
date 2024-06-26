@@ -65,6 +65,8 @@ url: 是插件运行上下文模板地址。上下文模板是html代码片段�
 
 需要注意的是，使用这个函数前需要确保 webCpu.componentPath 参数的值是底座脚本webCpu.js 所在文件夹下 components文件夹路径(比如 pluginMagic/dependency/components)。
 
+
+
 ### 打包插件组
 
 通过一个函数调用语句，就可以将多个插件打包成一组。
@@ -117,6 +119,13 @@ webCpu.renderCard(elem, {
 ```
 
 需要注意的是，使用这个函数前需要确保 webCpu.componentPath 参数的值是底座脚本webCpu.js 所在文件夹下 components文件夹路径(比如 pluginMagic/dependency/components)。
+
+- 定制开发
+
+当无权对插件组文件修改时，我们依然可以按实际需要对所使用的插件，进行定制化调整。
+
+这种情况只需要在调用 webCpu.renderCard函数时传入第 4 个参数 dsl. 这个 dsl 参数值会按其结构覆盖插件组内相应插件的 dsl 数据结构内容。
+
 
 ## 插件类型说明 (className)
 
