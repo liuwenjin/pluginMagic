@@ -180,7 +180,7 @@ var WebRequest = function (url, type, options) {
     }
   }
 
-  if(type !== "jsonp" && url.search(location.origin) === -1) {
+  if (type !== "jsonp" && url.search(location.origin) === -1) {
     options.proxy = true;
   }
   // options.proxy = options.proxy  true : options.proxy;
@@ -383,11 +383,11 @@ AjaxInterface.prototype.sendData = function (query, callback, params) {
   }
 
   _self.header = _self.header || {};
-  if(location.pathname.search("/proxy.html") === -1) {
+  if (location.pathname.search("/proxy.html") === -1) {
     _self.header["transweb-token"] = localStorage.getItem("transweb-token");
   }
-  if(_self.header) {
-    for(var k in _self.header){
+  if (_self.header) {
+    for (var k in _self.header) {
       this.httpObj.setRequestHeader(k, _self.header[k]);
     }
   }
@@ -409,7 +409,7 @@ AjaxInterface.prototype.init = function () {
         var key = MurmurHash.rule(proxy, 31);
         webCpu.crossItem = webCpu.crossItem || {};
         _self.header = _self.header || {};
-        if(location.pathname.search("/proxy.html") === -1) {
+        if (location.pathname.search("/proxy.html") === -1) {
           _self.header["transweb-token"] = localStorage.getItem("transweb-token");
         }
         if (!webCpu.crossItem[key]) {
@@ -651,42 +651,70 @@ ViewControl.prototype._update = function (task) {
     }
 
     if (page.front) {
-      page.total = task._data.length;
+      if (page.dataKey && task._data[page.dataKey]) {
+        page.total = task._data[page.dataKey].length;
+        task._data = WebTool.copyObject(task.data);
+      } else {
+        page.total = task._data.length;
+      }
       task.pageCallback = task.pageCallback || function (n, size, flag) {
         if (n < 1) {
           n = 1;
         }
+        flag = flag || 0;
+        var start = 0;
+        if (!flag) {
+          start = n - 1;
+        }
 
-        var _data = this._data || [];
+        size = this.pagination.size;
+
+        var _data = [];
+
+        if (page.dataKey && this._data[page.dataKey]) {
+          _data = WebTool.copyObject(this._data[page.dataKey]);
+          this.data[page.dataKey] = _data.slice(start * size, n * size);
+        } else {
+          _data = this._data || [];
+          this.data = _data.slice(start * size, n * size);
+        }
         try {
-          var start = 0;
-          if (!flag) {
-            start = n - 1;
-          }
-          this.data = _data.slice(flag * size, n * size);
           var name = this.className || "DataTable";
           webCpu[name].updateView(this);
         } catch (e) {
           console.log(e);
         }
       }
+    } else {
+      task.pageCallback = function (n, size) {
+        task.query = task.query || {};
+        task.query.current = n;
+        task.query.size = size;
+        webCpu.fresh(task.card);
+      }
     }
 
     if (page && !!page.total) {
       task.pagination = new webCpu.CardItem.Pagination(task.footArea, page.total, page.size, page.current, function (n, size) {
         webCpu.CardItem.switchState(task, "loading");
-        task.pageCallback(n, size);
+        if (typeof task.pageCallback === "function") {
+          task.pageCallback(n, size);
+        }
       }, page.flag);
+      
     } else {
       task.footArea.innerHTML = "";
+      
     }
   }
-
   if (task.pageCallback && task.option && task.option.page && task.option.page.front) {
     var page = task.option.page;
     task.pageCallback(page.current, page.size);
   } else {
     this.updateView(task, tData);
+  }
+  if(task.card && task.card.foot) {
+    $(task.cardBody).find(".CardItem_footArea").show();
   }
 }
 
@@ -1758,9 +1786,7 @@ WebCpu.prototype.updateView = function (elem, option, data, flag) {
         tCard.style = WebTool.copyObject(option.style);
       }
 
-      if (!option.url) {
-        tCard.task.remote = false;
-      }
+
 
       tCard.task.template = option.url || tCard.task.template;
 
@@ -1973,8 +1999,15 @@ WebCpu.prototype.renderCard = function (elem, option, cardName, dsl, callback) {
     let card = WebTool.copyObject(cData[current]);
     card.dsl = card.dsl || {};
     dsl = dsl || {};
-    _self.attachAttribute(dsl, card.dsl);
-    _self.updateView(elem, card, callback);
+    if (elem) {
+      _self.attachAttribute(dsl, card.dsl);
+      _self.updateView(elem, card, callback);
+    } else if (webCpu.CardItem) {
+      webCpu.CardItem.renderCardDialog(null, card, dsl);
+      if (typeof callback === "function") {
+        callback(card);
+      }
+    } else {}
   });
 }
 
@@ -2074,10 +2107,18 @@ WebCpu.prototype.renderHTML = function (elem, htmlStr, type) {
         document.head.appendChild(style);
       }
     }
+
+    let scriptTagRegex = /<script>([\s\S]*?)<\/script>/;
+    let match = htmlStr.match(scriptTagRegex);
+    let scriptContent = "";
+    if (match) {
+      scriptContent = match[1].trim();
+    }
+
     var ret = {};
-    var script = div.querySelector("script");
-    if (script) {
-      var tStr = script.innerHTML.trim();
+    // var script = div.querySelector("script");
+    if (scriptContent) {
+      var tStr = scriptContent.trim();
       var tArr = tStr.split("{");
       tArr.shift();
 
@@ -2092,7 +2133,7 @@ WebCpu.prototype.renderHTML = function (elem, htmlStr, type) {
           console.log(e, elem, htmlStr, type);
         }
       }
-      div.removeChild(script);
+      // div.removeChild(script);
     }
 
     if (type === "vuejs") {
@@ -3044,6 +3085,29 @@ WebTool.getColor = function (ctx, x, y) {
   };
 }
 
+WebTool.adjustStyle = function (sm, lg) {
+  var minWidth = sm || 600;
+  let maxWidth = lg || 1440;
+  var w = document.body.clientWidth;
+  var h = document.body.clientHeight;
+  window.transformRadio = 1;
+  if (w < minWidth) {
+    window.transformRadio = w / minWidth;
+    document.body.setAttribute("scaleFlag", "true");
+    document.body.style.width = minWidth + "px";
+    document.body.style.height = 100 * minWidth / w + "%";
+    document.body.style.transform = "scale(" + w / minWidth + ")";
+    document.body.style.transformOrigin = "0 0";
+  } else if (w < maxWidth) {
+    window.transformRadio = maxWidth / w;
+    document.body.setAttribute("scaleFlag", "true");
+    document.body.style.width = maxWidth + "px";
+    document.body.style.height = 100 * maxWidth / w + "%";
+    document.body.style.transform = "scale(" + w / maxWidth + ")";
+    document.body.style.transformOrigin = "0 0";
+  }
+}
+
 WebTool.removeImgBg = function (imgUrl, tolerance, callback) {
   var img = new Image(); // 创建 img 元素
   img.crossOrigin = '';
@@ -3251,7 +3315,7 @@ WebTool.setShortcutKey = function (elem, key, callback) {
   }
 }
 
-WebTool.bindData = function(str, obj, filter) {
+WebTool.bindData = function (str, obj, filter) {
   var ret = str;
   if (obj && typeof (obj) === "object") {
     var re = /{{([^}}]+)?}}/g;

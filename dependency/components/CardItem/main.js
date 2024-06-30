@@ -27,7 +27,6 @@
   <div class="CardItem_loading" style="display: none">
     <div style="width: 100%; display: inline-block; text-align:center;">
       <div class="box">
-        <span>加载中...</span>
         <div class="loader-16"></div>
         <span class="loadingTips" style="position: absolute; font-size: 12px; margin-top: 70px;">请稍后...</span>
       </div>
@@ -156,7 +155,7 @@
   webCpu.CardItem.message = {};
   webCpu.CardItem.tips = {
     empty: "暂无数据",
-    loading: '<span style="position: absolute; text-align: center; display: inline-block;left: 0px;width: 100%;" class="loadingTipsItem">加载中...</span><div style="margin-top: 30px;" class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
+    loading: '<span style="position: absolute; text-align: center; display: inline-block;left: 0px;width: 100%;" class="loadingTipsItem"></span><div style="margin-top: 30px;" class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
     error: "出现异常"
   }
 
@@ -259,7 +258,10 @@
   }
 
   webCpu.CardItem.dismissMask = function (data) {
-    if (!data) {
+    if (!data || data.querySelector) {
+      data = data || document.body;
+      $(data).children(".cardItemMask").remove();
+      // data.removeChild(data.querySelector(".cardItemMask"));
       return false;
     }
     var task = data.task || data;
@@ -586,11 +588,15 @@
       if (menuItem.data) {
         value = value.bindData(menuItem.data);
       }
-      var item = $('<div class="menuItem" style="float: left; height: 100%; width: auto; padding-left: 10px; padding-right: 10px; display: flex; flex-wrap: wrap; justify-content:center; align-items:center;">' + value + '</div>')
+      var item = $('<div class="menuItem" style="float: left; height: 100%; width: auto; padding-left: 5px; padding-right: 5px; display: flex; flex-wrap: wrap; justify-content:center; align-items:center;">' + value + '</div>')
       item.appendTo($(elem));
       let callback = menuItem.action || menuItem.callback;
       if (typeof (callback) === "function") {
-        item.on("click", callback);
+        item.on("click", function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          callback(e)
+        });
       }
     }
   }
@@ -764,8 +770,8 @@
 
         var leftSelector = titleSelector.find(".leftEmptyArea");
         var rightSelector = titleSelector.find(".rightEmptyArea");
-       
-        
+
+
         var closeSelector = leftSelector;
         var menuSelector = rightSelector;
         if (data.dialogData.closeType === "left") {
@@ -794,23 +800,21 @@
 
         }
 
-
-
         if (data.dialogData.menu) {
           webCpu.CardItem.updateMenuItems(menuSelector[0], data.dialogData.menu);
         } else {
           menuSelector.hide();
         }
 
-        closeSelector.on("click", function () {
+        closeSelector.on("click", function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          webCpu.CardItem.dismissMask(data.dialogData.parentCard);
           if (data.dialogData.parentCard) {
             if (typeof (data.dialogData.closeCallback) === "function") {
               data.dialogData.closeCallback()
             }
-            webCpu.CardItem.dismissMask(data.dialogData.parentCard);
-            // delete data.dialogData.parentCard;
           }
-
         });
 
       } else {}
@@ -840,15 +844,15 @@
           var item = $('<div style="float: left; height: 100%; width: ' + 100 / data.footMenu.length + '%; display: flex; flex-wrap: wrap; justify-content:center; align-items:center;">' + value + '</div>')
           item.appendTo($(container).children(".CardItem_footArea"));
           if (typeof (menuItem.action) === "function") {
-            item.on("click", menuItem.action);
+            item.on("click", function (e) {
+              e.stopPropagation();
+              e.preventDefault();
+              menuItem.action(e);
+            });
           }
         }
       }
-
-      $(container).children(".CardItem_footArea").show();
     }
-
-
     if (data.footStyle) {
       $(container).children(".CardItem_footArea").css(data.footStyle);
     }
@@ -1012,19 +1016,37 @@
 
 
   webCpu.CardItem.renderCardDialog = function (mCard, option, params, style, tStyle) {
-    if (!mCard) {
-      return false;
-    }
-    var task = mCard.task || mCard;
+    var task = mCard;
     params = params || {};
+    if (mCard && !mCard.querySelector) {
+      task = mCard.task || mCard;
+      if (params) {
+        params.parentCard = mCard;
+      }
 
-    if (task.childCard && params.renderMode === 'stack') {
-      webCpu.CardItem.renderCardDialog(task.childCard, option, params, style, tStyle);
-      return;
-    }
-    this.switchMask(mCard, "html", "");
-    if (params) {
-      params.parentCard = mCard;
+      if (task.childCard && params.renderMode === 'stack') {
+        webCpu.CardItem.renderCardDialog(task.childCard, option, params, style, tStyle);
+        return;
+      }
+      this.switchMask(mCard, "html", "");
+    } else {
+      mCard = mCard || document.body;
+      if (params) {
+        params.parentCard = mCard;
+      }
+      task = {
+        mask: document.createElement("div")
+      }
+      task.mask.setAttribute("class", "cardItemMask");
+      task.mask.style.zIndex = 1000;
+      task.mask.style.width = "100%";
+      task.mask.style.height = "100%";
+      task.mask.style.position = "absolute";
+      task.mask.style.background = "rgba(255, 255, 255, 1)";
+      task.mask.style.display = "flex";
+      task.mask.style.left = 0;
+      task.mask.style.top = 0;
+      mCard.prepend(task.mask);
     }
     if (params.style) {
       $(task.mask).css(params.style);
@@ -1041,13 +1063,22 @@
       cardName: params.dialogName,
       style: style,
       task: {
-        style: tStyle || {},
+        style: tStyle || {
+          padding: "0px"
+        },
         promise: {
           afterRender: function (c1, d1, t1) {
-            webCpu.updateView(c1, option, params.callback);
-            if (option.card && option.card.task) {
-              option.card.task._parent = t1.card;
+            if (option.pluginUrl && option.pluginKey) {
+              option.url = option.url || option.pluginUrl;
+              option.key = option.key || option.pluginKey;
+              webCpu.renderCard(c1, option, option.cardName, option.dsl, params.callback);
+            } else {
+              webCpu.updateView(c1, option, params.callback);
+              if (option.card && option.card.task) {
+                option.card.task._parent = t1.card;
+              }
             }
+
           }
         }
       }
@@ -1120,7 +1151,7 @@
 
   webCpu.CardItem.dialog = function (data, options, closePromise) {
     var options = options || {};
-    webCpu.render("ModalDialog", function () {
+    webCpu.render("ModalDialog", function (c, d, t) {
       var task = {
         data: data
       }
@@ -1131,13 +1162,9 @@
         }
       }
 
-      var t = {
-        container: data.task.container
-      };
-
       $("#tModalDialog").attr("state", "previewCardItem");
       webCpu["ModalDialog"].displayComponent(options.title || "", "CardItem", task, options);
-      task.data.task.container = t.container;
+      // task.data.task.container = t.container;
       task = null;
     });
   }
@@ -1208,7 +1235,7 @@
     content.style.position = "relative";
     box.style.display = "inline-block";
     content.style.display = "inline-block";
-  
+
     let x = Math.max(elem.getBoundingClientRect().left - content.getBoundingClientRect().left, 0)
     box.style.left = x + "px";
     let y = Math.max(elem.getBoundingClientRect().top - content.getBoundingClientRect().top, 0);
@@ -1633,7 +1660,7 @@
 
   webCpu.CardItem.Pagination.prototype.updatePages = function (n, size, flag) {
     n = Number(n) || 0;
-    this.size = size;
+    this.size = size || this.size;
     this.count = Math.ceil(this.total / (this.size));
     this.initPageSelect();
     if (n < this.count + 1) {
@@ -1695,7 +1722,7 @@
         } else {}
 
         if (typeof (_self.callback) === "function") {
-          var size = Number($(_self.container).find("select.pageSize").val()) || 10;
+          var size = _self.size || 10;
           _self.callback(p, size);
           _self.updatePages(p, size, _self.flag);
         }
@@ -1707,6 +1734,7 @@
       $(this.container).find("select.pageNumber").on("change", function () {
         var value = Number($(this).val());
         var size = Number($(_self.container).find("select.pageSize").val()) || 10;
+        _self.size = size;
         if (value !== NaN && value < _self.count + 1 && value > 0) {
           _self.callback(value, size);
           _self.updatePages(value, size, _self.flag);

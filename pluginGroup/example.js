@@ -1,6 +1,56 @@
 transweb_example([{
+  cardName: "可视化插件",
+  className: "EchartsItem",
+  dsl: {
+    "type": 'column',
+    "dataMap": ['A', 'B'],
+    "data": [{
+      "name": '一月',
+      "value": [130, 80]
+    }, {
+      "name": '二月',
+      "value": [140, 20]
+    }, {
+      "name": '三月',
+      "value": [210, 180]
+    }, {
+      "name": '四月',
+      "value": [140, 80]
+    }, {
+      "name": '五月',
+      "value": [200, 130]
+    }, {
+      "name": '五月',
+      "value": [140, 180]
+    }, {
+      "name": '五月',
+      "value": [210, 80]
+    }, {
+      "name": '六月',
+      "value": [140, 100]
+    }, {
+      "name": '七月',
+      "value": [200, 80]
+    }, {
+      "name": '八月',
+      "value": [190, 180]
+    }, {
+      "name": '九月',
+      "value": [240, 80]
+    }, {
+      "name": '十月',
+      "value": [40, 280]
+    }, {
+      "name": '十一月',
+      "value": [140, 20]
+    }, {
+      "name": '十二月',
+      "value": [40, 60]
+    }],
+  }
+}, {
   cardName: "信息卡片插件",
-  url: "https://transweb.cn/plugins/elementVueItem/pageCard.vue",
+  url: "/pluginGroup/context/pageCard.vue",
   className: "ElementVueItem",
   dsl: {
     "dataFilter": function (d) {
@@ -123,56 +173,6 @@ transweb_example([{
         "type": 'html'
       }]
     }
-  }
-}, {
-  cardName: "可视化插件",
-  className: "EchartsItem",
-  dsl: {
-    "type": 'column',
-    "dataMap": ['A', 'B'],
-    "data": [{
-      "name": '一月',
-      "value": [130, 80]
-    }, {
-      "name": '二月',
-      "value": [140, 20]
-    }, {
-      "name": '三月',
-      "value": [210, 180]
-    }, {
-      "name": '四月',
-      "value": [140, 80]
-    }, {
-      "name": '五月',
-      "value": [200, 130]
-    }, {
-      "name": '五月',
-      "value": [140, 180]
-    }, {
-      "name": '五月',
-      "value": [210, 80]
-    }, {
-      "name": '六月',
-      "value": [140, 100]
-    }, {
-      "name": '七月',
-      "value": [200, 80]
-    }, {
-      "name": '八月',
-      "value": [190, 180]
-    }, {
-      "name": '九月',
-      "value": [240, 80]
-    }, {
-      "name": '十月',
-      "value": [40, 280]
-    }, {
-      "name": '十一月',
-      "value": [140, 20]
-    }, {
-      "name": '十二月',
-      "value": [40, 60]
-    }],
   }
 }, {
   cardName: "Phaser 游戏",
