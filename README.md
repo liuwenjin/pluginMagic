@@ -16,7 +16,7 @@
 
 ## 安装
 
-1. 下载并解压项目代码压缩包 (下载地址：https://codeload.github.com/liuwenjin/pluginMagic/zip/refs/heads/main)。
+1. 下载并解压项目代码压缩包, 下载地址：https://codeload.github.com/liuwenjin/pluginMagic/zip/refs/heads/main
 2. 将解压的文件夹复制粘贴到 Web 服务的静态目录。
 3. 在页面的head中添加插件的底座 JS 脚本 (webCpu.js)。
 <script src="pluginMagic/dependency/webCpu.js"></script>
