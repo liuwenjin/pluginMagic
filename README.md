@@ -49,7 +49,6 @@
   }
 }
 ```
-
 className: 是插件的类型，标识该插件所依赖的资源对应 pluginMagic/dependency/components 目录下的文件夹命名。
 
 dsl: 是插件的dsl描述内容，它的值也是一个 JS 对象。至于怎么设置这个 JS 对象描述插件特性特征满足项目或产品，看文档后面的内容。
@@ -125,6 +124,12 @@ webCpu.renderCard(elem, {
 当无权对插件组文件修改时，我们依然可以按实际需要对所使用的插件，进行定制化调整。
 
 这种情况只需要在调用 webCpu.renderCard函数时传入第 4 个参数 dsl. 这个 dsl 参数值会按其结构覆盖插件组内相应插件的 dsl 数据结构内容。
+
+## 插件的类型
+
+当前支持的插件种类有：EchartsItem、ElementVueItem、PhaserItem和TemplateItem。
+
+对于这些种类的详细描述可以点击插件类型说明文档链接：[\[类型说明文档链接\]](https://transweb.cn/document.html?productId=52c813d2fe275ab938f97beb63d192b2)
 
 ## 贡献
 我们欢迎任何形式的贡献！无论是提交问题、改进文档，还是提交代码。
