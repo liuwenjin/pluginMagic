@@ -27,14 +27,6 @@
 
 使用 JS 对象结构封装插件，对象中包含：className, dsl, cardName和url(可选)属性。
 
-className: 是插件的类型，标识该插件所依赖的资源对应 pluginMagic/dependency/components 目录下的文件夹命名。
-
-dsl: 是插件的dsl描述内容，它的值也是一个 JS 对象。至于怎么设置这个 JS 对象描述插件特性特征满足项目或产品，看文档后面的内容。
-
-cardName: 是该插件被打包到插件组里的标识。(通过函数调用使用该插件时，作为第三个参数)。
-
-url: 是插件运行上下文模板地址。上下文模板是html代码片段或vue代码片段，也就是一些提前预制好的html元素标签、Element Plus标签，或 aFrame VR 元素标签内容，以及初始化的代码逻辑。
-
 请参看如下插件代码示例：
 
 ```javascript
@@ -57,6 +49,16 @@ url: 是插件运行上下文模板地址。上下文模板是html代码片段�
   }
 }
 ```
+
+className: 是插件的类型，标识该插件所依赖的资源对应 pluginMagic/dependency/components 目录下的文件夹命名。
+
+dsl: 是插件的dsl描述内容，它的值也是一个 JS 对象。至于怎么设置这个 JS 对象描述插件特性特征满足项目或产品，看文档后面的内容。
+
+cardName: 是该插件被打包到插件组里的标识。(通过函数调用使用该插件时，作为第三个参数)。
+
+url: 是插件运行上下文模板地址。上下文模板是html代码片段或vue代码片段，也就是一些提前预制好的html元素标签、Element Plus标签，或 aFrame VR 元素标签内容，以及初始化的代码逻辑。
+
+
 - 如何使用
 
 这样的插件可以通过插件底座 webCpu.js 提供的 webCpu.updateView(elem, plugin) 函数嵌入到网页中。
