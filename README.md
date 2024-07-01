@@ -129,7 +129,7 @@ webCpu.renderCard(elem, {
 
 当前支持的插件种类有：EchartsItem、ElementVueItem、PhaserItem和TemplateItem。
 
-对于这些种类的详细描述可以点击插件类型说明文档链接：[\[类型说明文档链接\]](https://transweb.cn/document.html?productId=52c813d2fe275ab938f97beb63d192b2){:target="_blank"}
+对于这些种类的详细描述可以点击插件类型说明文档链接：<a href="https://transweb.cn/document.html?productId=52c813d2fe275ab938f97beb63d192b2" target="_blank">类型说明文档链接</a>
 
 ## 贡献
 我们欢迎任何形式的贡献！无论是提交问题、改进文档，还是提交代码。
@@ -156,5 +156,5 @@ pluginMagic 的插件基座 webCpu.js 在 GPL-3.0 许可证下发布。
 ## 联系信息
 
 开发者邮箱：neilking@163.com
-GitHub仓库：[\[仓库链接\]](https://github.com/liuwenjin/pluginMagic.git){:target="_blank"}
+GitHub仓库：<a href="https://github.com/liuwenjin/pluginMagic.git" target="_blank">仓库链接</a>
 
